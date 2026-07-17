@@ -73,3 +73,36 @@ body.v022-world-active .welcome{display:none}
 @keyframes v22Pulse{50%{opacity:.35;transform:scale(.7)}}
 @media(max-width:720px){.v022-world{min-height:720px;margin-left:-10px;margin-right:-10px;border-radius:0}.v022-hud{min-height:720px;padding:18px 12px 22px}.v022-brand h1{font-size:3rem;letter-spacing:.11em}.v022-now{grid-template-columns:1fr;text-align:center;gap:8px}.v022-temp{font-size:6rem}.v022-metrics{grid-template-columns:1fr 1fr}.v022-tabs{grid-template-columns:repeat(3,1fr)}.v022-live-card{border-radius:23px}}
 @media(prefers-reduced-motion:reduce){.v022-cloud-layer,.v022-pulse{animation:none}.v022-scene{transition:none}}
+
+
+/* V022A BEACH THEME + SWIPE APP
+   Visual environment only. No readings are baked into scenery; all values remain live app data. */
+:root{--beach-aqua:#54e6e0;--beach-deep:#063b55;--beach-sand:#f2d09b;--beach-sunset:#ff9b63;--beach-glass:rgba(2,23,36,.68)}
+body{background:linear-gradient(180deg,#072f49 0,#04202f 48%,#06111b 100%)}
+.v022-world{border-color:rgba(118,237,229,.48);box-shadow:0 30px 95px rgba(0,19,31,.68),0 0 75px rgba(84,230,224,.18)}
+.v022-scene{filter:saturate(1.2) contrast(1.04) brightness(.92) hue-rotate(-5deg);background-position:center 18%}
+.v022-world[data-day='1'] .v022-scene{filter:saturate(1.25) contrast(1.03) brightness(1.08) hue-rotate(-7deg)}
+.v022-world[data-weather='clear'] .v022-scene{filter:saturate(1.38) contrast(1.02) brightness(1.13) hue-rotate(-8deg)}
+.v022-world[data-weather='rain'] .v022-scene{filter:saturate(.92) contrast(1.12) brightness(.72) hue-rotate(3deg)}
+.v022-world[data-weather='storm'] .v022-scene{filter:saturate(.72) contrast(1.2) brightness(.54) hue-rotate(7deg)}
+.v022-world:before{background:linear-gradient(180deg,rgba(0,45,69,.04),rgba(0,52,72,.02) 42%,rgba(0,23,37,.24) 66%,rgba(1,12,20,.91) 100%),radial-gradient(circle at 73% 20%,rgba(255,189,116,.22),transparent 24%),radial-gradient(circle at 50% 40%,transparent 0 27%,rgba(0,18,29,.18) 85%)}
+.v022-world:after{content:'';position:absolute;z-index:1;left:-8%;right:-8%;bottom:-1%;height:31%;pointer-events:none;background:linear-gradient(180deg,rgba(24,182,198,.04),rgba(22,182,199,.22) 28%,rgba(5,76,101,.5) 58%,rgba(2,34,49,.85));clip-path:polygon(0 22%,8% 17%,16% 24%,25% 14%,34% 23%,43% 16%,52% 24%,62% 13%,72% 21%,82% 15%,91% 23%,100% 17%,100% 100%,0 100%);animation:beachTide 6s ease-in-out infinite;mix-blend-mode:screen;opacity:.72}
+.v022-beach-horizon{position:absolute;z-index:2;left:0;right:0;bottom:15%;height:92px;pointer-events:none;overflow:hidden;opacity:.8;mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.v022-wave{position:absolute;left:-12%;width:124%;height:34px;border-top:2px solid rgba(196,255,249,.72);border-radius:50%;filter:drop-shadow(0 0 9px rgba(84,230,224,.72));animation:beachWave 5.4s ease-in-out infinite}
+.v022-wave:nth-child(1){top:6px}.v022-wave:nth-child(2){top:26px;animation-delay:-1.9s;opacity:.58}.v022-wave:nth-child(3){top:48px;animation-delay:-3.2s;opacity:.38}
+.v022-light{background:radial-gradient(circle at 69% 22%,rgba(255,202,123,.48),transparent 23%),linear-gradient(160deg,rgba(47,235,225,.08),transparent 48%)}
+.v022-brand h1{color:#fff3cf;text-shadow:0 2px 28px rgba(0,0,0,.85),0 0 20px rgba(84,230,224,.16)}
+.v022-brand small{color:#c9ffff}.v022-chip{border-color:rgba(139,245,236,.3);background:rgba(1,36,52,.62)}
+.v022-live-card{background:linear-gradient(145deg,rgba(2,39,55,.78),rgba(3,17,28,.72));border-color:rgba(108,239,230,.42);box-shadow:0 22px 72px rgba(0,18,29,.48),inset 0 1px rgba(255,255,255,.11)}
+.v022-metric{background:rgba(2,37,51,.68);border-color:rgba(107,232,224,.2)}
+.v022-tabs{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-bottom:4px}.v022-tabs button{flex:0 0 min(150px,39vw);scroll-snap-align:center;background:rgba(1,42,58,.72);border-color:rgba(107,232,224,.25)}.v022-tabs button.active{background:linear-gradient(135deg,rgba(84,230,224,.34),rgba(255,179,105,.22));border-color:rgba(166,255,246,.76);box-shadow:0 0 20px rgba(84,230,224,.18)}
+.v022-version{border-color:rgba(92,239,228,.7);color:#d9fffb;background:rgba(1,38,53,.8)}
+.v022-swipe-hint{text-align:center;margin-top:9px;color:#c4eeeb;font-size:.72rem;letter-spacing:.08em}.v022-swipe-hint span{display:inline-block;animation:swipeHint 1.8s ease-in-out infinite}
+.shell>.tabs.friendly-tabs{scroll-snap-type:x mandatory}.shell>.tabs.friendly-tabs button{scroll-snap-align:center}
+#view{touch-action:pan-y;transition:opacity .16s ease,transform .16s ease}#view.swipe-left{opacity:.35;transform:translateX(-18px)}#view.swipe-right{opacity:.35;transform:translateX(18px)}
+.panel{border-color:rgba(100,225,218,.22);background:linear-gradient(180deg,rgba(3,38,52,.84),rgba(3,18,29,.88))}.dock{border-color:rgba(93,226,218,.32);background:rgba(2,27,39,.94)}.dock .active{background:linear-gradient(135deg,var(--beach-aqua),#ffe0a9)}
+@keyframes beachTide{50%{transform:translateY(7px) scaleX(1.015);opacity:.58}}
+@keyframes beachWave{0%,100%{transform:translateX(-1%) scaleY(.82)}50%{transform:translateX(1.5%) scaleY(1.15)}}
+@keyframes swipeHint{50%{transform:translateX(8px);opacity:.55}}
+@media(max-width:720px){.v022-world{min-height:760px}.v022-hud{min-height:760px}.v022-beach-horizon{bottom:19%}.v022-tabs button{flex-basis:42vw}.v022-live-card{padding-bottom:18px}}
+@media(prefers-reduced-motion:reduce){.v022-world:after,.v022-wave,.v022-swipe-hint span{animation:none}}
