@@ -107,4 +107,33 @@ function startDigitalWorld(){
 
 function checkAlerts(){if(Notification.permission!=='granted')return;const now=new Date(),hm=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0'),key=now.toISOString().slice(0,10),last=localStorage.getItem('skygates-v020-last-alert');if(state.alerts.horoscope&&hm===state.notifyTime&&last!==key){localStorage.setItem('skygates-v020-last-alert',key);new Notification('Your Skygate day is ready',{body:reading(),icon:'./icon-192.png'})}}
 async function load(){if(state.loading)return;state.loading=true;render();try{state.data=await weather(state.place)}catch(e){alert(e.message)}finally{state.loading=false;render()}}
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e});window.addEventListener('DOMContentLoaded',()=>{const q=new URLSearchParams(location.search).get('tab');if(q)state.tab=q;render();startCosmos();startDigitalWorld();load();setInterval(checkAlerts,30000);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{})});})();
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e});window.addEventListener('DOMContentLoaded',()=>{const q=new URLSearchParams(location.search).get('tab');if(q)state.tab=q;render();startCosmos();startDigitalWorld();load();setInterval(checkAlerts,30000);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{})});
+
+// V021 Living Sky: additive visual layer; no forecast, profile or storage semantics changed.
+function startV021LivingSky(){
+ if(document.querySelector('.v021-world'))return;
+ const world=document.createElement('div');world.className='v021-world';world.setAttribute('aria-hidden','true');world.innerHTML='<div class="v021-aurora"></div><div class="v021-nebula"></div><div class="v021-horizon"></div><div class="v021-scan"></div>';
+ const flash=document.createElement('div');flash.className='v021-flash';flash.setAttribute('aria-hidden','true');
+ const pulse=document.createElement('div');pulse.className='v021-pulse';pulse.setAttribute('aria-live','polite');pulse.innerHTML='<i class="v021-pulse-dot"></i><strong>SKY PULSE</strong><span>connecting…</span>';
+ document.body.append(world,flash,pulse);
+ const pulseText=pulse.querySelector('span');
+ function updatePulse(){const c=state.data?.current;if(!c){pulseText.textContent='reading the sky…';return}const condition=wtxt(c.weather_code);const phase=moon().name;const temp=Math.round(t(c.temperature_2m))+tu();pulseText.textContent=`${condition} · ${temp} · ${phase}`}
+ updatePulse();setInterval(updatePulse,15000);
+ let lastStorm=0;setInterval(()=>{const code=+(state.data?.current?.weather_code||0);if(code>=95&&!state.reduceMotion&&Date.now()-lastStorm>7000){lastStorm=Date.now();flash.classList.remove('on');void flash.offsetWidth;flash.classList.add('on')}},2200);
+ document.addEventListener('pointerdown',e=>{if(state.reduceMotion||e.target.closest('input,textarea,select'))return;const r=document.createElement('i');r.className='v021-ripple';r.style.left=e.clientX+'px';r.style.top=e.clientY+'px';document.body.appendChild(r);setTimeout(()=>r.remove(),950)},{passive:true});
+ const observer=new MutationObserver(()=>{const view=document.getElementById('view');if(!view)return;view.classList.remove('v021-enter');void view.offsetWidth;view.classList.add('v021-enter');updatePulse()});
+ const app=document.getElementById('app');if(app)observer.observe(app,{childList:true,subtree:false});
+ startV021Constellations();
+}
+function startV021Constellations(){
+ const c=document.createElement('canvas');c.id='v021Constellations';c.setAttribute('aria-hidden','true');Object.assign(c.style,{position:'fixed',inset:'0',width:'100%',height:'100%',zIndex:'0',pointerEvents:'none',opacity:'.72'});document.body.appendChild(c);
+ const g=c.getContext('2d');let W=0,H=0,D=1,stars=[],meteors=[];
+ function resize(){D=Math.min(devicePixelRatio||1,1.6);W=innerWidth;H=innerHeight;c.width=W*D;c.height=H*D;g.setTransform(D,0,0,D,0,0);const count=state.quality==='ultra'?70:state.quality==='low'?18:42;stars=Array.from({length:count},()=>({x:Math.random()*W,y:Math.random()*H*.72,v:Math.random()*.06+.01,a:Math.random()*.45+.12,r:Math.random()*1.25+.25}))}
+ function meteor(){if(state.reduceMotion||state.quality==='low'||meteors.length>2)return;meteors.push({x:Math.random()*W*.75,y:Math.random()*H*.35,v:8+Math.random()*8,l:70+Math.random()*100,a:.8})}
+ setInterval(()=>{if(Math.random()>.48)meteor()},5200);
+ function frame(t){g.clearRect(0,0,W,H);for(const s of stars){s.y+=s.v*(state.reduceMotion?0:1);if(s.y>H*.75)s.y=0;g.fillStyle=`rgba(215,239,255,${s.a*(.55+.45*Math.sin(t*.001+s.x))})`;g.beginPath();g.arc(s.x,s.y,s.r,0,Math.PI*2);g.fill()}for(let i=0;i<stars.length;i++){let best=null,bd=130;for(let j=i+1;j<stars.length;j++){const dx=stars[i].x-stars[j].x,dy=stars[i].y-stars[j].y,d=Math.hypot(dx,dy);if(d<bd){bd=d;best=stars[j]}}if(best&&bd<105){g.strokeStyle=`rgba(125,216,255,${(1-bd/105)*.11})`;g.lineWidth=.7;g.beginPath();g.moveTo(stars[i].x,stars[i].y);g.lineTo(best.x,best.y);g.stroke()}}meteors=meteors.filter(m=>m.a>.02&&m.x<W+200&&m.y<H);for(const m of meteors){m.x+=m.v;m.y+=m.v*.43;m.a*=.966;const grad=g.createLinearGradient(m.x,m.y,m.x-m.l,m.y-m.l*.43);grad.addColorStop(0,`rgba(255,255,255,${m.a})`);grad.addColorStop(.28,`rgba(128,230,255,${m.a*.65})`);grad.addColorStop(1,'rgba(100,160,255,0)');g.strokeStyle=grad;g.lineWidth=1.4;g.beginPath();g.moveTo(m.x,m.y);g.lineTo(m.x-m.l,m.y-m.l*.43);g.stroke()}requestAnimationFrame(frame)}
+ addEventListener('resize',resize);resize();requestAnimationFrame(frame);
+}
+window.addEventListener('DOMContentLoaded',startV021LivingSky);
+
+})();
