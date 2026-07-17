@@ -66,7 +66,49 @@ function journalTab(){const items=JSON.parse(localStorage.getItem(JKEY)||'[]');r
 function moreTab(){return`<section class="panel section"><span class="eyebrow">GROWN-UP SETTINGS & FUN EXTRAS</span><h2>Make Skygates yours</h2><div class="settings-grid"><label class="switch">My town<input id="place" value="${esc(state.place)}"></label><label class="switch">Zodiac choice<select id="zMode"><option value="12">Traditional 12 signs</option><option value="13">13 signs with Ophiuchus</option></select></label><label class="switch">My name<input id="pName" value="${esc(state.profile.name)}"></label><label class="switch">My birthday<input id="pBirth" type="date" value="${esc(state.profile.birthDate)}"></label><label class="switch">Daily fun message<input id="aH" type="checkbox" ${state.alerts.horoscope?'checked':''}></label><label class="switch">Moon reminder<input id="aM" type="checkbox" ${state.alerts.moon?'checked':''}></label><label class="switch">Good star night alert<input id="aS" type="checkbox" ${state.alerts.sky?'checked':''}></label><label class="switch">Rain reminder<input id="aR" type="checkbox" ${state.alerts.rain?'checked':''}></label><label class="switch">Reminder time<input id="nTime" type="time" value="${state.notifyTime}"></label><label class="switch">Gentle sounds<select id="sound"><option value="off">Off</option><option value="temple">Moon chimes</option><option value="rain">Soft rain</option><option value="space">Space hum</option></select></label><label class="switch">Graphics<select id="quality"><option value="low">Save battery</option><option value="standard">Normal</option><option value="ultra">Full magic</option></select></label><label class="switch">Red telescope screen<input id="redMode" type="checkbox" ${state.redMode?'checked':''}></label><label class="switch">Less movement<input id="reduceMotion" type="checkbox" ${state.reduceMotion?'checked':''}></label><label class="switch">My sky guide<select id="pGuide"><option>Luna</option><option>Nova</option><option>Atlas</option><option>Aurora</option></select></label><label class="switch">My main view<select id="pExperience"><option value="balanced">Weather and space equally</option><option value="weather">Mostly weather</option><option value="sky">Mostly Moon and stars</option></select></label></div>${customHomeSettings()}<div class="row" style="margin-top:14px"><button class="btn primary" id="saveSettings">Save my choices</button><button class="btn" id="enableNotify">Allow reminders</button><button class="btn" id="install2">📲 Put app on my phone</button><button class="btn" id="stopSound">Stop sounds</button><button class="btn" id="cinemaMode">Big-screen mode</button></div><details class="number-details"><summary>Important grown-up information</summary><div class="details-body">Weather comes from live forecast data. Moon phases are calculated locally. Astrology is for reflection and fun. Reminders work locally while the app or browser is active; guaranteed closed-app push needs a future secure service.</div></details></section>`}
 
 function body(){return state.tab==='today'?home():state.tab==='weather'?weatherTab():state.tab==='sky'?skyTab():state.tab==='horoscope'?horoscopeTab():state.tab==='journal'?journalTab():moreTab()}
-function render(){document.querySelector('#app').innerHTML=`<div class="shell">${header()}${nav()}<div id="view">${body()}</div></div>${!state.profile.setupDone?onboarding():''}<nav class="dock">${[['today','🏠','Today'],['weather','🌦','Weather'],['sky','🌙','Sky'],['horoscope','✨','Reading'],['more','⚙','More']].map(x=>`<button class="${state.tab===x[0]?'active':''}" data-tab="${x[0]}"><b>${x[1]}</b>${x[2]}</button>`).join('')}</nav>`;bind()}
+
+
+// V022 real live 3D temple world. Artwork is scenery only; every displayed reading comes from current Open-Meteo state.
+function v022WeatherClass(code){code=+code||0;return code>=95?'storm':code>=51?'rain':code>=45?'fog':code<=1?'clear':'cloud'}
+function mountV022(){
+ document.body.classList.add('v022-world-active');
+ const shell=document.querySelector('.shell'); if(!shell)return;
+ let world=shell.querySelector('.v022-world');
+ if(!world){
+  world=document.createElement('section');world.className='v022-world';world.setAttribute('aria-label','Live three dimensional Skygates weather world');
+  world.innerHTML=`<div class="v022-scene"></div><div class="v022-cloud-layer"></div><div class="v022-light"></div><canvas class="v022-weather-canvas"></canvas><div class="v022-version"><span class="v022-pulse"></span>V022 LIVE 3D</div><div class="v022-hud"><div class="v022-brand"><small>WEATHER + SPACE, MADE REAL</small><h1>SKYGATES</h1><p id="v022-place">Connecting to the live sky…</p><div class="v022-status"><span class="v022-chip" id="v022-time">Local time</span><span class="v022-chip" id="v022-source">LIVE OPEN-METEO</span><span class="v022-chip" id="v022-mode">Weather-reactive world</span></div></div><div class="v022-live-card"><div class="v022-now"><div class="v022-temp" id="v022-temp">—</div><div class="v022-condition"><h2 id="v022-condition">Reading the sky…</h2><p id="v022-summary">Real conditions will drive the scene.</p></div></div><div class="v022-metrics"><div class="v022-metric"><small>Feels like</small><b id="v022-feels">—</b></div><div class="v022-metric"><small>Rain chance</small><b id="v022-rain">—</b></div><div class="v022-metric"><small>Wind</small><b id="v022-wind">—</b></div><div class="v022-metric"><small>Humidity</small><b id="v022-humidity">—</b></div></div><div class="v022-tabs"><button data-tab="today">Today</button><button data-tab="weather">Weather</button><button data-tab="sky">Moon & Stars</button><button data-tab="horoscope">My Reading</button><button data-tab="journal">My Sky Book</button><button data-tab="more">More</button></div></div></div>`;
+  const top=shell.querySelector('.top');(top||shell.firstElementChild).insertAdjacentElement('afterend',world);startV022Canvas(world);
+ }
+ updateV022(world);
+}
+function updateV022(world){
+ const d=state.data,c=d?.current,i=startIdx(),rain=d?.hourly?.precipitation_probability?.[i];
+ const set=(id,val)=>{const e=document.getElementById(id);if(e)e.textContent=val};
+ if(!c){set('v022-place',state.place+' · connecting to live weather');return}
+ const cls=v022WeatherClass(c.weather_code);world.dataset.weather=cls;world.dataset.day=String(c.is_day!==0?1:0);
+ world.style.setProperty('--cloud',String(c.cloud_cover??40));world.style.setProperty('--sun',c.is_day!==0?(cls==='clear'?'.95':'.48'):'.08');
+ set('v022-place',(d.label||state.place)+' · '+new Date().toLocaleString([],{weekday:'long',hour:'numeric',minute:'2-digit'}));
+ set('v022-time',c.is_day!==0?'DAYLIGHT SCENE':'NIGHT SCENE');set('v022-mode',cls.toUpperCase()+' WORLD');
+ set('v022-temp',Math.round(t(c.temperature_2m))+tu());set('v022-condition',wtxt(c.weather_code));
+ set('v022-summary',`Live ${wtxt(c.weather_code).toLowerCase()} conditions are controlling the temple sky, light and particles.`);
+ set('v022-feels',Math.round(t(c.apparent_temperature))+tu());set('v022-rain',(Number.isFinite(+rain)?Math.round(rain):'—')+'%');set('v022-wind',Math.round(wind(c.wind_speed_10m))+' '+wu());set('v022-humidity',Math.round(c.relative_humidity_2m||0)+'%');
+}
+function startV022Canvas(world){
+ const canvas=world.querySelector('.v022-weather-canvas'),ctx=canvas.getContext('2d');let w=0,h=0,dpr=1,drops=[],stars=[],flash=0,lastBolt=0;
+ function resize(){const r=world.getBoundingClientRect();w=r.width;h=r.height;dpr=Math.min(devicePixelRatio||1,1.7);canvas.width=w*dpr;canvas.height=h*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);drops=Array.from({length:170},()=>({x:Math.random()*w,y:Math.random()*h,z:.25+Math.random()*.9,s:7+Math.random()*19}));stars=Array.from({length:95},()=>({x:Math.random()*w,y:Math.random()*h*.55,a:.2+Math.random()*.8,r:.4+Math.random()*1.5}))}
+ function lightning(now){ctx.save();ctx.globalAlpha=flash;ctx.fillStyle='#dff5ff';ctx.fillRect(0,0,w,h);ctx.strokeStyle='#f5fdff';ctx.shadowColor='#b9eaff';ctx.shadowBlur=25;ctx.lineWidth=2.4;ctx.beginPath();let x=w*(.35+Math.random()*.3),y=0;ctx.moveTo(x,y);while(y<h*.7){x+=(Math.random()-.5)*42;y+=24+Math.random()*35;ctx.lineTo(x,y)}ctx.stroke();ctx.restore();flash*=.78;if(flash<.02)flash=0}
+ function frame(now){ctx.clearRect(0,0,w,h);const c=state.data?.current||{},cls=v022WeatherClass(c.weather_code),night=c.is_day===0,windN=Math.min(40,+c.wind_speed_10m||4);
+  if(night){for(const s of stars){ctx.globalAlpha=s.a*(.65+.35*Math.sin(now*.001+s.x));ctx.fillStyle='#e6f4ff';ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill()}ctx.globalAlpha=1}
+  if(cls==='rain'||cls==='storm'){ctx.lineWidth=1.1;for(const p of drops){p.y+=p.s*(cls==='storm'?1.5:1);p.x-=windN*.035*p.z;if(p.y>h){p.y=-20;p.x=Math.random()*w}ctx.strokeStyle=`rgba(190,225,248,${.2+p.z*.52})`;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x-3-windN*.08,p.y+10+p.z*24);ctx.stroke()}}
+  if(cls==='storm'&&now-lastBolt>3500+Math.random()*5500){flash=.72;lastBolt=now}if(flash)lightning(now);
+  requestAnimationFrame(frame)}
+ function move(x,y){world.style.setProperty('--scene-x',`${(x/w-.5)*-16}px`);world.style.setProperty('--scene-y',`${(y/h-.5)*-10}px`)}
+ world.addEventListener('pointermove',e=>{const r=world.getBoundingClientRect();move(e.clientX-r.left,e.clientY-r.top)},{passive:true});
+ addEventListener('deviceorientation',e=>{if(e.gamma!=null)move(w/2+Math.max(-30,Math.min(30,e.gamma))*5,h/2+Math.max(-25,Math.min(25,(e.beta||45)-45))*3)},{passive:true});
+ addEventListener('resize',resize);resize();requestAnimationFrame(frame)
+}
+
+function render(){document.querySelector('#app').innerHTML=`<div class="shell">${header()}${nav()}<div id="view">${body()}</div></div>${!state.profile.setupDone?onboarding():''}<nav class="dock">${[['today','🏠','Today'],['weather','🌦','Weather'],['sky','🌙','Sky'],['horoscope','✨','Reading'],['more','⚙','More']].map(x=>`<button class="${state.tab===x[0]?'active':''}" data-tab="${x[0]}"><b>${x[1]}</b>${x[2]}</button>`).join('')}</nav>`;mountV022();bind()}
 function bind(){document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{state.tab=b.dataset.tab;save();render()});$('#unit').onclick=()=>{state.unit=state.unit==='C'?'F':'C';save();render()};$('#refresh').onclick=load;$('#install').onclick=install;$('#install2')&&($('#install2').onclick=install);$('#playMood')&&($('#playMood').onclick=()=>playSound(state.sound==='off'?'temple':state.sound));$('#saveJournal')&&($('#saveJournal').onclick=saveJournal);$('#saveSettings')&&($('#saveSettings').onclick=saveSettings);$('#enableNotify')&&($('#enableNotify').onclick=enableNotify);$('#stopSound')&&($('#stopSound').onclick=stopSound);if($('#zMode'))$('#zMode').value=state.zodiacMode;if($('#sound'))$('#sound').value=state.sound;if($('#quality'))$('#quality').value=state.quality;if($('#pGuide'))$('#pGuide').value=state.profile.guide||'Luna';if($('#pExperience'))$('#pExperience').value=state.profile.experience||'balanced';$('#finishSetup')&&($('#finishSetup').onclick=finishSetup);$('#skipSetup')&&($('#skipSetup').onclick=()=>{state.profile.setupDone=true;save();render()});applyImmersive();$('#cinemaMode')&&($('#cinemaMode').onclick=toggleCinema);setupTilt()}
 function finishSetup(){state.profile.name=$('#onName').value.trim();state.profile.birthDate=$('#onBirth').value;state.profile.guide=$('#onGuide').value;state.profile.experience=$('#onExperience').value;state.profile.setupDone=true;save();render()}
 function saveJournal(){const arr=JSON.parse(localStorage.getItem(JKEY)||'[]'),m=moon(),c=state.data?.current;arr.unshift({title:$('#jTitle').value||'Sky observation',notes:$('#jNotes').value||'',rating:$('#jRating').value||3,date:new Date().toLocaleString(),weather:c?wtxt(c.weather_code):'Unknown',moon:m.name});localStorage.setItem(JKEY,JSON.stringify(arr.slice(0,100)));render()}
@@ -107,62 +149,4 @@ function startDigitalWorld(){
 
 function checkAlerts(){if(Notification.permission!=='granted')return;const now=new Date(),hm=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0'),key=now.toISOString().slice(0,10),last=localStorage.getItem('skygates-v020-last-alert');if(state.alerts.horoscope&&hm===state.notifyTime&&last!==key){localStorage.setItem('skygates-v020-last-alert',key);new Notification('Your Skygate day is ready',{body:reading(),icon:'./icon-192.png'})}}
 async function load(){if(state.loading)return;state.loading=true;render();try{state.data=await weather(state.place)}catch(e){alert(e.message)}finally{state.loading=false;render()}}
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e});window.addEventListener('DOMContentLoaded',()=>{const q=new URLSearchParams(location.search).get('tab');if(q)state.tab=q;render();startCosmos();startDigitalWorld();load();setInterval(checkAlerts,30000);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=021a',{updateViaCache:'none'}).catch(()=>{})});
-
-// V021 Living Sky: additive visual layer; no forecast, profile or storage semantics changed.
-function startV021LivingSky(){
- if(document.querySelector('.v021-world'))return;
- const world=document.createElement('div');world.className='v021-world';world.setAttribute('aria-hidden','true');world.innerHTML='<div class="v021-aurora"></div><div class="v021-nebula"></div><div class="v021-horizon"></div><div class="v021-scan"></div>';
- const flash=document.createElement('div');flash.className='v021-flash';flash.setAttribute('aria-hidden','true');
- const pulse=document.createElement('div');pulse.className='v021-pulse';pulse.setAttribute('aria-live','polite');pulse.innerHTML='<i class="v021-pulse-dot"></i><strong>SKY PULSE</strong><span>connecting…</span>';
- document.body.append(world,flash,pulse);
- const pulseText=pulse.querySelector('span');
- function updatePulse(){const c=state.data?.current;if(!c){pulseText.textContent='reading the sky…';return}const condition=wtxt(c.weather_code);const phase=moon().name;const temp=Math.round(t(c.temperature_2m))+tu();pulseText.textContent=`${condition} · ${temp} · ${phase}`}
- updatePulse();setInterval(updatePulse,15000);
- let lastStorm=0;setInterval(()=>{const code=+(state.data?.current?.weather_code||0);if(code>=95&&!state.reduceMotion&&Date.now()-lastStorm>7000){lastStorm=Date.now();flash.classList.remove('on');void flash.offsetWidth;flash.classList.add('on')}},2200);
- document.addEventListener('pointerdown',e=>{if(state.reduceMotion||e.target.closest('input,textarea,select'))return;const r=document.createElement('i');r.className='v021-ripple';r.style.left=e.clientX+'px';r.style.top=e.clientY+'px';document.body.appendChild(r);setTimeout(()=>r.remove(),950)},{passive:true});
- const observer=new MutationObserver(()=>{const view=document.getElementById('view');if(!view)return;view.classList.remove('v021-enter');void view.offsetWidth;view.classList.add('v021-enter');updatePulse()});
- const app=document.getElementById('app');if(app)observer.observe(app,{childList:true,subtree:false});
- startV021Constellations();
-}
-function startV021Constellations(){
- const c=document.createElement('canvas');c.id='v021Constellations';c.setAttribute('aria-hidden','true');Object.assign(c.style,{position:'fixed',inset:'0',width:'100%',height:'100%',zIndex:'0',pointerEvents:'none',opacity:'.72'});document.body.appendChild(c);
- const g=c.getContext('2d');let W=0,H=0,D=1,stars=[],meteors=[];
- function resize(){D=Math.min(devicePixelRatio||1,1.6);W=innerWidth;H=innerHeight;c.width=W*D;c.height=H*D;g.setTransform(D,0,0,D,0,0);const count=state.quality==='ultra'?70:state.quality==='low'?18:42;stars=Array.from({length:count},()=>({x:Math.random()*W,y:Math.random()*H*.72,v:Math.random()*.06+.01,a:Math.random()*.45+.12,r:Math.random()*1.25+.25}))}
- function meteor(){if(state.reduceMotion||state.quality==='low'||meteors.length>2)return;meteors.push({x:Math.random()*W*.75,y:Math.random()*H*.35,v:8+Math.random()*8,l:70+Math.random()*100,a:.8})}
- setInterval(()=>{if(Math.random()>.48)meteor()},5200);
- function frame(t){g.clearRect(0,0,W,H);for(const s of stars){s.y+=s.v*(state.reduceMotion?0:1);if(s.y>H*.75)s.y=0;g.fillStyle=`rgba(215,239,255,${s.a*(.55+.45*Math.sin(t*.001+s.x))})`;g.beginPath();g.arc(s.x,s.y,s.r,0,Math.PI*2);g.fill()}for(let i=0;i<stars.length;i++){let best=null,bd=130;for(let j=i+1;j<stars.length;j++){const dx=stars[i].x-stars[j].x,dy=stars[i].y-stars[j].y,d=Math.hypot(dx,dy);if(d<bd){bd=d;best=stars[j]}}if(best&&bd<105){g.strokeStyle=`rgba(125,216,255,${(1-bd/105)*.11})`;g.lineWidth=.7;g.beginPath();g.moveTo(stars[i].x,stars[i].y);g.lineTo(best.x,best.y);g.stroke()}}meteors=meteors.filter(m=>m.a>.02&&m.x<W+200&&m.y<H);for(const m of meteors){m.x+=m.v;m.y+=m.v*.43;m.a*=.966;const grad=g.createLinearGradient(m.x,m.y,m.x-m.l,m.y-m.l*.43);grad.addColorStop(0,`rgba(255,255,255,${m.a})`);grad.addColorStop(.28,`rgba(128,230,255,${m.a*.65})`);grad.addColorStop(1,'rgba(100,160,255,0)');g.strokeStyle=grad;g.lineWidth=1.4;g.beginPath();g.moveTo(m.x,m.y);g.lineTo(m.x-m.l,m.y-m.l*.43);g.stroke()}requestAnimationFrame(frame)}
- addEventListener('resize',resize);resize();requestAnimationFrame(frame);
-}
-window.addEventListener('DOMContentLoaded',startV021LivingSky);
-
-
-// V021A visible live-sky scene engine. Additive only; app data and profiles unchanged.
-function startV021AVisibleEngine(){
- if(document.querySelector('.v021a-version'))return;
- const badge=document.createElement('div');badge.className='v021a-version';badge.textContent='V021A · LIVE SKY ENGINE';document.body.appendChild(badge);
- function mount(){
-  const shell=document.querySelector('.shell'); if(!shell||shell.querySelector('.v021a-stage'))return;
-  const top=shell.querySelector('.top'); if(!top)return;
-  const stage=document.createElement('section');stage.className='v021a-stage';stage.setAttribute('aria-label','Live weather-reactive Skygate scene');
-  stage.innerHTML='<canvas></canvas><i class="v021a-gate left"></i><i class="v021a-gate right"></i><div class="v021a-stage-copy"><small>WEATHER-REACTIVE PORTAL</small><h2>THE SKY IS ALIVE</h2><p>Live atmosphere · touch the portal · move your phone</p></div>';
-  top.insertAdjacentElement('afterend',stage);run(stage.querySelector('canvas'),stage);
- }
- const obs=new MutationObserver(mount);obs.observe(document.getElementById('app'),{childList:true,subtree:true});mount();
- function run(c,stage){const g=c.getContext('2d');let W=0,H=0,D=1,P=[],bolts=[],tiltX=0,tiltY=0;
-  function resize(){const r=stage.getBoundingClientRect();W=r.width;H=r.height;D=Math.min(devicePixelRatio||1,1.7);c.width=W*D;c.height=H*D;g.setTransform(D,0,0,D,0,0);P=Array.from({length:Math.max(90,Math.floor(W/5))},()=>({x:Math.random()*W,y:Math.random()*H,z:Math.random(),v:.2+Math.random()*1.4,a:.2+Math.random()*.8}))}
-  function bolt(){const code=+(state.data?.current?.weather_code||0);if(code>=80||Math.random()>.8)bolts.push({x:W*(.25+Math.random()*.5),y:0,a:1,pts:[]})}
-  setInterval(bolt,codeInterval());function codeInterval(){return 3600}
-  function drawBolt(b){let x=b.x,y=0;b.pts=[[x,y]];while(y<H*.82){x+=(Math.random()-.5)*34;y+=18+Math.random()*26;b.pts.push([x,y])}g.save();g.globalAlpha=b.a;g.shadowBlur=22;g.shadowColor='#b8eeff';g.strokeStyle='#eafcff';g.lineWidth=2.2;g.beginPath();b.pts.forEach((p,i)=>i?g.lineTo(...p):g.moveTo(...p));g.stroke();g.restore();b.a*=.82}
-  function frame(t){g.clearRect(0,0,W,H);const code=+(state.data?.current?.weather_code||0),rain=code>=51,storm=code>=95,night=state.data?.current?.is_day===0;
-   const grad=g.createRadialGradient(W*.5+tiltX,H*.48+tiltY,8,W*.5,H*.5,Math.max(W,H)*.58);grad.addColorStop(0,storm?'rgba(225,245,255,.38)':night?'rgba(153,96,255,.35)':'rgba(70,235,255,.34)');grad.addColorStop(.34,'rgba(39,100,190,.13)');grad.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=grad;g.fillRect(0,0,W,H);
-   for(let ring=0;ring<6;ring++){const r=(Math.min(W,H)*(.12+ring*.055))*(1+.035*Math.sin(t*.0015+ring));g.strokeStyle=`rgba(${ring%2?180:110},${ring%2?120:230},255,${.24-ring*.025})`;g.lineWidth=1.5;g.beginPath();g.ellipse(W*.5+tiltX*.18,H*.49+tiltY*.18,r,r*.78,t*.00012*(ring%2?1:-1),0,Math.PI*2);g.stroke()}
-   for(const p of P){p.y+=p.v*(rain?5:1);p.x+=Math.sin(t*.001+p.z*9)*.25;if(p.y>H){p.y=-8;p.x=Math.random()*W}if(rain){g.strokeStyle=`rgba(175,225,255,${p.a*.52})`;g.beginPath();g.moveTo(p.x,p.y);g.lineTo(p.x-5,p.y+18+p.z*28);g.stroke()}else{g.fillStyle=`rgba(${night?210:130},${night?220:245},255,${p.a})`;g.beginPath();g.arc(p.x,p.y,.5+p.z*1.8,0,Math.PI*2);g.fill()}}
-   bolts=bolts.filter(b=>b.a>.04);bolts.forEach(drawBolt);requestAnimationFrame(frame)}
-  stage.addEventListener('pointerdown',e=>{const r=stage.getBoundingClientRect();tiltX=(e.clientX-r.left-W/2)*.15;tiltY=(e.clientY-r.top-H/2)*.15;bolts.push({x:e.clientX-r.left,y:0,a:1,pts:[]})});
-  addEventListener('deviceorientation',e=>{if(e.gamma!=null){tiltX=Math.max(-30,Math.min(30,e.gamma))*1.4;tiltY=Math.max(-25,Math.min(25,e.beta-45))*.8}},{passive:true});
-  addEventListener('resize',resize);resize();requestAnimationFrame(frame)}
-}
-window.addEventListener('DOMContentLoaded',startV021AVisibleEngine);
-
-})();
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e});window.addEventListener('DOMContentLoaded',()=>{const q=new URLSearchParams(location.search).get('tab');if(q)state.tab=q;render();startCosmos();startDigitalWorld();load();setInterval(checkAlerts,30000);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=022',{updateViaCache:'none'}).catch(()=>{})});})();
