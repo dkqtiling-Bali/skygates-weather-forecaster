@@ -107,7 +107,7 @@ function startDigitalWorld(){
 
 function checkAlerts(){if(Notification.permission!=='granted')return;const now=new Date(),hm=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0'),key=now.toISOString().slice(0,10),last=localStorage.getItem('skygates-v020-last-alert');if(state.alerts.horoscope&&hm===state.notifyTime&&last!==key){localStorage.setItem('skygates-v020-last-alert',key);new Notification('Your Skygate day is ready',{body:reading(),icon:'./icon-192.png'})}}
 async function load(){if(state.loading)return;state.loading=true;render();try{state.data=await weather(state.place)}catch(e){alert(e.message)}finally{state.loading=false;render()}}
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e});window.addEventListener('DOMContentLoaded',()=>{const q=new URLSearchParams(location.search).get('tab');if(q)state.tab=q;render();startCosmos();startDigitalWorld();load();setInterval(checkAlerts,30000);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{})});
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e});window.addEventListener('DOMContentLoaded',()=>{const q=new URLSearchParams(location.search).get('tab');if(q)state.tab=q;render();startCosmos();startDigitalWorld();load();setInterval(checkAlerts,30000);if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=021a',{updateViaCache:'none'}).catch(()=>{})});
 
 // V021 Living Sky: additive visual layer; no forecast, profile or storage semantics changed.
 function startV021LivingSky(){
@@ -135,5 +135,34 @@ function startV021Constellations(){
  addEventListener('resize',resize);resize();requestAnimationFrame(frame);
 }
 window.addEventListener('DOMContentLoaded',startV021LivingSky);
+
+
+// V021A visible live-sky scene engine. Additive only; app data and profiles unchanged.
+function startV021AVisibleEngine(){
+ if(document.querySelector('.v021a-version'))return;
+ const badge=document.createElement('div');badge.className='v021a-version';badge.textContent='V021A · LIVE SKY ENGINE';document.body.appendChild(badge);
+ function mount(){
+  const shell=document.querySelector('.shell'); if(!shell||shell.querySelector('.v021a-stage'))return;
+  const top=shell.querySelector('.top'); if(!top)return;
+  const stage=document.createElement('section');stage.className='v021a-stage';stage.setAttribute('aria-label','Live weather-reactive Skygate scene');
+  stage.innerHTML='<canvas></canvas><i class="v021a-gate left"></i><i class="v021a-gate right"></i><div class="v021a-stage-copy"><small>WEATHER-REACTIVE PORTAL</small><h2>THE SKY IS ALIVE</h2><p>Live atmosphere · touch the portal · move your phone</p></div>';
+  top.insertAdjacentElement('afterend',stage);run(stage.querySelector('canvas'),stage);
+ }
+ const obs=new MutationObserver(mount);obs.observe(document.getElementById('app'),{childList:true,subtree:true});mount();
+ function run(c,stage){const g=c.getContext('2d');let W=0,H=0,D=1,P=[],bolts=[],tiltX=0,tiltY=0;
+  function resize(){const r=stage.getBoundingClientRect();W=r.width;H=r.height;D=Math.min(devicePixelRatio||1,1.7);c.width=W*D;c.height=H*D;g.setTransform(D,0,0,D,0,0);P=Array.from({length:Math.max(90,Math.floor(W/5))},()=>({x:Math.random()*W,y:Math.random()*H,z:Math.random(),v:.2+Math.random()*1.4,a:.2+Math.random()*.8}))}
+  function bolt(){const code=+(state.data?.current?.weather_code||0);if(code>=80||Math.random()>.8)bolts.push({x:W*(.25+Math.random()*.5),y:0,a:1,pts:[]})}
+  setInterval(bolt,codeInterval());function codeInterval(){return 3600}
+  function drawBolt(b){let x=b.x,y=0;b.pts=[[x,y]];while(y<H*.82){x+=(Math.random()-.5)*34;y+=18+Math.random()*26;b.pts.push([x,y])}g.save();g.globalAlpha=b.a;g.shadowBlur=22;g.shadowColor='#b8eeff';g.strokeStyle='#eafcff';g.lineWidth=2.2;g.beginPath();b.pts.forEach((p,i)=>i?g.lineTo(...p):g.moveTo(...p));g.stroke();g.restore();b.a*=.82}
+  function frame(t){g.clearRect(0,0,W,H);const code=+(state.data?.current?.weather_code||0),rain=code>=51,storm=code>=95,night=state.data?.current?.is_day===0;
+   const grad=g.createRadialGradient(W*.5+tiltX,H*.48+tiltY,8,W*.5,H*.5,Math.max(W,H)*.58);grad.addColorStop(0,storm?'rgba(225,245,255,.38)':night?'rgba(153,96,255,.35)':'rgba(70,235,255,.34)');grad.addColorStop(.34,'rgba(39,100,190,.13)');grad.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=grad;g.fillRect(0,0,W,H);
+   for(let ring=0;ring<6;ring++){const r=(Math.min(W,H)*(.12+ring*.055))*(1+.035*Math.sin(t*.0015+ring));g.strokeStyle=`rgba(${ring%2?180:110},${ring%2?120:230},255,${.24-ring*.025})`;g.lineWidth=1.5;g.beginPath();g.ellipse(W*.5+tiltX*.18,H*.49+tiltY*.18,r,r*.78,t*.00012*(ring%2?1:-1),0,Math.PI*2);g.stroke()}
+   for(const p of P){p.y+=p.v*(rain?5:1);p.x+=Math.sin(t*.001+p.z*9)*.25;if(p.y>H){p.y=-8;p.x=Math.random()*W}if(rain){g.strokeStyle=`rgba(175,225,255,${p.a*.52})`;g.beginPath();g.moveTo(p.x,p.y);g.lineTo(p.x-5,p.y+18+p.z*28);g.stroke()}else{g.fillStyle=`rgba(${night?210:130},${night?220:245},255,${p.a})`;g.beginPath();g.arc(p.x,p.y,.5+p.z*1.8,0,Math.PI*2);g.fill()}}
+   bolts=bolts.filter(b=>b.a>.04);bolts.forEach(drawBolt);requestAnimationFrame(frame)}
+  stage.addEventListener('pointerdown',e=>{const r=stage.getBoundingClientRect();tiltX=(e.clientX-r.left-W/2)*.15;tiltY=(e.clientY-r.top-H/2)*.15;bolts.push({x:e.clientX-r.left,y:0,a:1,pts:[]})});
+  addEventListener('deviceorientation',e=>{if(e.gamma!=null){tiltX=Math.max(-30,Math.min(30,e.gamma))*1.4;tiltY=Math.max(-25,Math.min(25,e.beta-45))*.8}},{passive:true});
+  addEventListener('resize',resize);resize();requestAnimationFrame(frame)}
+}
+window.addEventListener('DOMContentLoaded',startV021AVisibleEngine);
 
 })();
