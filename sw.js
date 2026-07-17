@@ -1,4 +1,4 @@
-const CACHE='skygates-v020-github';
+const CACHE='skygates-v021-living-sky';
 const BASE=new URL('./',self.location.href);
 const ASSETS=['./','./index.html','./app.css','./app.js','./manifest.webmanifest','./icon-192.png','./icon-512.png','./bali-skygate.webp','./trinity-knot.svg'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));
