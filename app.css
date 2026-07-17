@@ -41,42 +41,35 @@ body.digital-day .scene{opacity:.12}body.digital-night .scene{opacity:.08}.scene
 @media(max-width:760px){.onboard-grid,.profile-grid{grid-template-columns:1fr 1fr}.profile-orb{min-height:130px}}@media(max-width:480px){.onboard-grid,.profile-grid{grid-template-columns:1fr}.onboard-card{max-height:92vh;overflow:auto}.profile-orb{border-radius:22px;min-height:110px}}
 
 
-/* V021 Living Sky visual effects — additive, weather-reactive and accessibility-safe */
-:root{--v21-cyan:#7df4ff;--v21-violet:#b58cff;--v21-gold:#ffd986;--v21-pulse:.65}
-.v021-world{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;mix-blend-mode:screen}
-.v021-aurora{position:absolute;inset:-35% -25% 15%;opacity:.34;filter:blur(45px) saturate(1.35);background:conic-gradient(from 210deg at 55% 35%,transparent 0 14%,rgba(49,255,209,.28) 20%,rgba(111,142,255,.22) 30%,rgba(206,92,255,.24) 39%,transparent 50%);animation:v21Aurora calc(18s/var(--motion)) ease-in-out infinite alternate}
-.v021-nebula{position:absolute;width:58vw;height:58vw;right:-18vw;top:-20vw;border-radius:50%;background:radial-gradient(circle,rgba(139,234,255,.16),rgba(172,104,255,.09) 38%,transparent 70%);filter:blur(18px);animation:v21Nebula calc(22s/var(--motion)) ease-in-out infinite alternate}
-.v021-horizon{position:absolute;left:-10%;right:-10%;bottom:-18%;height:42%;background:radial-gradient(ellipse at 50% 0,rgba(93,205,255,.15),rgba(106,73,211,.07) 42%,transparent 72%);filter:blur(26px);animation:v21Horizon calc(8s/var(--motion)) ease-in-out infinite}
-.v021-scan{position:absolute;inset:0;opacity:.12;background:linear-gradient(180deg,transparent 0 49.8%,rgba(157,232,255,.25) 50%,transparent 50.2%);background-size:100% 150px;animation:v21Scan calc(8s/var(--motion)) linear infinite}
-.v021-flash{position:fixed;inset:0;z-index:2;pointer-events:none;background:radial-gradient(circle at 62% 18%,rgba(220,240,255,.92),rgba(125,170,255,.18) 23%,transparent 56%);opacity:0}.v021-flash.on{animation:v21Flash .75s ease-out}
-.v021-pulse{position:fixed;z-index:25;right:14px;top:14px;display:flex;align-items:center;gap:9px;padding:9px 13px;border:1px solid rgba(169,226,255,.25);border-radius:999px;background:rgba(3,10,25,.62);backdrop-filter:blur(18px);box-shadow:0 10px 38px rgba(0,0,0,.3),0 0 28px rgba(86,207,255,.09);font-size:.72rem;letter-spacing:.06em;color:#dff8ff;pointer-events:none}.v021-pulse-dot{width:8px;height:8px;border-radius:50%;background:var(--v21-cyan);box-shadow:0 0 0 0 rgba(125,244,255,.5);animation:v21Dot calc(2s/var(--motion)) ease-out infinite}.v021-pulse strong{color:#fff}.v021-pulse span{color:#9fc5d8}
-.panel,.answer-card,.profile-orb,.sky-card{isolation:isolate}.panel:after,.answer-card:before,.profile-orb:before,.sky-card:before{content:"";position:absolute;inset:-100% -35%;pointer-events:none;background:linear-gradient(110deg,transparent 42%,rgba(255,255,255,.09) 49%,rgba(139,234,255,.08) 51%,transparent 58%);transform:translateX(-55%) rotate(4deg);animation:v21GlassSweep calc(13s/var(--motion)) ease-in-out infinite}.answer-card:nth-child(2):before,.profile-orb:nth-child(2):before{animation-delay:-3s}.answer-card:nth-child(3):before,.profile-orb:nth-child(3):before{animation-delay:-6s}.answer-card:nth-child(4):before,.profile-orb:nth-child(4):before{animation-delay:-9s}
-#view.v021-enter{animation:v21Enter .55s cubic-bezier(.2,.8,.2,1)}
-.v021-ripple{position:fixed;z-index:999;pointer-events:none;width:18px;height:18px;border:1px solid rgba(158,237,255,.8);border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 20px rgba(112,218,255,.45);animation:v21Ripple .9s ease-out forwards}
-body.weather-storm .v021-aurora{opacity:.18}body.weather-rain .v021-horizon{opacity:.8}body.weather-clear .v021-aurora{opacity:.5}body.weather-night .v021-nebula{opacity:1}.quality-low .v021-scan,.quality-low .v021-nebula{display:none}.quality-low .v021-aurora{opacity:.13}.red-mode .v021-world,.red-mode .v021-pulse{filter:hue-rotate(300deg) saturate(2.2)}
-@keyframes v21Aurora{0%{transform:translate3d(-5%,0,0) rotate(-5deg) scale(1)}100%{transform:translate3d(8%,8%,0) rotate(7deg) scale(1.13)}}
-@keyframes v21Nebula{to{transform:translate3d(-9%,10%,0) scale(1.15);opacity:.7}}
-@keyframes v21Horizon{50%{transform:scaleX(1.08) translateY(-3%);opacity:.65}}
-@keyframes v21Scan{to{background-position:0 150px}}
-@keyframes v21Flash{0%{opacity:0}8%{opacity:.9}16%{opacity:.08}25%{opacity:.65}100%{opacity:0}}
-@keyframes v21Dot{70%{box-shadow:0 0 0 10px rgba(125,244,255,0)}}
-@keyframes v21GlassSweep{0%,68%{transform:translateX(-62%) rotate(4deg)}86%,100%{transform:translateX(62%) rotate(4deg)}}
-@keyframes v21Enter{from{opacity:.25;transform:translateY(12px) scale(.992);filter:blur(5px)}to{opacity:1;transform:none;filter:none}}
-@keyframes v21Ripple{to{width:180px;height:180px;opacity:0;border-width:0}}
-@media(max-width:900px){.v021-pulse{top:auto;right:10px;bottom:calc(76px + var(--safe));max-width:calc(100% - 20px)}.v021-scan{opacity:.07}.v021-aurora{opacity:.25}}
-@media(prefers-reduced-motion:reduce){.v021-aurora,.v021-nebula,.v021-horizon,.v021-scan,.v021-pulse-dot,.panel:after,.answer-card:before,.profile-orb:before,.sky-card:before{animation:none!important}.v021-ripple{display:none}.v021-world{opacity:.55}}
-
-
-/* V021A unmistakable visible live-sky engine */
-.v021a-version{position:fixed;z-index:1000;left:12px;top:12px;padding:8px 12px;border-radius:999px;background:linear-gradient(135deg,#ffe18e,#8df4ff);color:#06101c;font:900 .68rem/1 system-ui;letter-spacing:.12em;box-shadow:0 0 32px rgba(125,244,255,.55);pointer-events:none}
-.v021a-stage{position:relative;height:clamp(230px,35vw,430px);margin:12px 0 16px;border-radius:30px;overflow:hidden;border:1px solid rgba(139,234,255,.45);background:radial-gradient(circle at 50% 44%,rgba(81,220,255,.22),transparent 23%),linear-gradient(180deg,rgba(3,9,24,.3),rgba(3,6,18,.9));box-shadow:0 0 70px rgba(85,190,255,.18),inset 0 0 80px rgba(119,74,230,.18)}
-.v021a-stage canvas{position:absolute;inset:0;width:100%;height:100%}
-.v021a-stage-copy{position:absolute;z-index:2;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;width:min(92%,720px);text-shadow:0 2px 20px #000,0 0 34px rgba(118,226,255,.65);pointer-events:none}
-.v021a-stage-copy small{display:block;color:#aeeeff;letter-spacing:.24em;font-weight:900;font-size:.7rem}.v021a-stage-copy h2{margin:.35rem 0;font:500 clamp(2rem,7vw,5rem)/.9 Georgia,serif}.v021a-stage-copy p{margin:0;color:#e7f8ff;font-weight:700}
-.v021a-gate{position:absolute;z-index:1;top:4%;bottom:0;width:34%;filter:drop-shadow(0 0 28px rgba(255,207,107,.38));opacity:.9;pointer-events:none}.v021a-gate.left{left:-4%;transform:perspective(700px) rotateY(13deg)}.v021a-gate.right{right:-4%;transform:scaleX(-1) perspective(700px) rotateY(13deg)}
-.v021a-gate:before,.v021a-gate:after{content:"";position:absolute;background:linear-gradient(90deg,#1b1620,#735126 50%,#19131e);border:1px solid rgba(255,223,151,.42)}.v021a-gate:before{left:16%;right:22%;top:4%;bottom:0;clip-path:polygon(18% 0,82% 0,100% 12%,82% 19%,94% 28%,75% 34%,90% 44%,70% 51%,82% 63%,63% 70%,70% 100%,0 100%,8% 70%,0 57%,18% 48%,4% 37%,25% 28%,10% 18%,30% 11%)}.v021a-gate:after{left:5%;right:8%;top:12%;height:8%;clip-path:polygon(0 50%,18% 0,50% 35%,82% 0,100% 50%,82% 100%,50% 65%,18% 100%)}
-.v021a-stage:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0 5px,rgba(120,225,255,.045) 6px 7px);mix-blend-mode:screen;pointer-events:none;animation:v21aScan 4s linear infinite}
-body.weather-storm .v021a-stage{box-shadow:0 0 90px rgba(160,190,255,.36),inset 0 0 100px rgba(70,90,160,.28)}
-@keyframes v21aScan{to{transform:translateY(14px)}}
-@media(max-width:600px){.v021a-version{top:auto;bottom:calc(78px + var(--safe));left:8px}.v021a-stage{height:300px;border-radius:22px}.v021a-gate{width:48%}.v021a-stage-copy h2{font-size:2.6rem}.v021a-stage-copy p{font-size:.86rem}}
-@media(prefers-reduced-motion:reduce){.v021a-stage:after{animation:none}}
+/* V022 real live 3D temple world - all displayed values are supplied by live app state */
+:root{--v22-gold:#f5d58b;--v22-glass:rgba(4,12,22,.68)}
+body{background:#02070d;overflow-x:hidden}
+.scene{background:none!important;opacity:0!important}
+#digitalWorld,#cosmosCanvas,.portal-ring{display:none!important}
+.v022-world{position:relative;min-height:min(78vh,820px);margin:10px 0 18px;border-radius:32px;overflow:hidden;border:1px solid rgba(250,216,143,.38);box-shadow:0 28px 90px rgba(0,0,0,.52),0 0 64px rgba(91,175,255,.14);isolation:isolate;perspective:1000px;background:#050b12}
+.v022-scene{position:absolute;inset:-4%;z-index:0;background-image:url('./skygates-temple-world.png');background-size:cover;background-position:center 22%;transform:translate3d(var(--scene-x,0),var(--scene-y,0),0) scale(1.09);transition:filter 1.3s ease,transform .18s ease-out;filter:saturate(1.08) contrast(1.06) brightness(.78)}
+.v022-world[data-day='1'] .v022-scene{filter:saturate(1.08) contrast(1.05) brightness(.98)}
+.v022-world[data-weather='clear'] .v022-scene{filter:saturate(1.2) contrast(1.03) brightness(1.05)}
+.v022-world[data-weather='rain'] .v022-scene{filter:saturate(.88) contrast(1.12) brightness(.68) hue-rotate(4deg)}
+.v022-world[data-weather='storm'] .v022-scene{filter:saturate(.68) contrast(1.2) brightness(.52) hue-rotate(8deg)}
+.v022-world[data-weather='fog'] .v022-scene{filter:saturate(.72) contrast(.9) brightness(.83)}
+.v022-world:before{content:'';position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(2,7,14,.05),rgba(2,7,14,.08) 46%,rgba(2,7,14,.9) 100%),radial-gradient(circle at 50% 38%,transparent 0 22%,rgba(0,0,0,.26) 78%);pointer-events:none}
+.v022-weather-canvas{position:absolute;inset:0;z-index:2;width:100%;height:100%;pointer-events:none}
+.v022-cloud-layer{position:absolute;z-index:2;inset:-20% -35% 35%;opacity:calc(var(--cloud,40)/115);background:radial-gradient(ellipse at 20% 55%,rgba(220,232,240,.7),transparent 30%),radial-gradient(ellipse at 58% 40%,rgba(130,150,170,.72),transparent 38%),radial-gradient(ellipse at 85% 58%,rgba(205,215,225,.56),transparent 28%);filter:blur(24px);animation:v22Cloud 34s linear infinite;pointer-events:none}
+.v022-light{position:absolute;z-index:3;inset:0;background:radial-gradient(circle at 62% 26%,rgba(255,220,145,.38),transparent 24%);mix-blend-mode:screen;opacity:var(--sun,.7);pointer-events:none;transition:opacity 1s}
+.v022-hud{position:relative;z-index:5;min-height:min(78vh,820px);display:flex;flex-direction:column;justify-content:space-between;padding:clamp(18px,4vw,42px)}
+.v022-brand{text-align:center;text-shadow:0 3px 22px rgba(0,0,0,.95)}
+.v022-brand small{letter-spacing:.26em;color:#fff;font-weight:800}.v022-brand h1{font:500 clamp(2.5rem,8vw,6.6rem)/.9 Georgia,serif;letter-spacing:.18em;color:var(--v22-gold);margin:.18em 0}.v022-brand p{margin:0;font-weight:700;color:#eaf7ff}
+.v022-status{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}.v022-chip{padding:8px 12px;border-radius:999px;background:rgba(3,11,22,.58);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(16px);font-size:.78rem}
+.v022-live-card{width:min(860px,100%);margin:0 auto;padding:clamp(18px,3vw,30px);border-radius:28px;background:linear-gradient(145deg,rgba(4,13,24,.82),rgba(3,8,16,.63));border:1px solid rgba(255,229,172,.35);backdrop-filter:blur(24px) saturate(1.25);box-shadow:0 20px 70px rgba(0,0,0,.4),inset 0 1px rgba(255,255,255,.1)}
+.v022-now{display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center}.v022-temp{font:500 clamp(4.8rem,16vw,9.5rem)/.75 Georgia,serif;color:#fff;text-shadow:0 0 30px rgba(255,228,170,.28)}.v022-condition h2{margin:0;font-size:clamp(1.6rem,4vw,3rem)}.v022-condition p{margin:.35rem 0;color:#dce9f3}
+.v022-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:18px}.v022-metric{padding:12px;border-radius:17px;background:rgba(7,18,31,.62);border:1px solid rgba(255,255,255,.12);text-align:center}.v022-metric small{display:block;color:#aebdca}.v022-metric b{display:block;font-size:1.1rem;margin-top:4px}
+.v022-tabs{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-top:13px}.v022-tabs button{min-height:46px;border-radius:15px;border:1px solid rgba(255,255,255,.14);background:rgba(3,11,21,.66);color:#eaf5ff;font-weight:800}.v022-tabs button:hover,.v022-tabs button:focus{background:rgba(245,213,139,.19);border-color:rgba(245,213,139,.6)}
+.v022-version{position:absolute;right:12px;top:12px;z-index:8;padding:7px 10px;border-radius:999px;background:rgba(2,8,15,.72);border:1px solid rgba(245,213,139,.48);font-size:.62rem;letter-spacing:.12em;color:#ffe9b5}
+.v022-pulse{display:inline-block;width:8px;height:8px;border-radius:50%;background:#6ef5ae;box-shadow:0 0 15px #6ef5ae;margin-right:6px;animation:v22Pulse 1.5s ease-in-out infinite}
+body.v022-world-active .top{background:rgba(4,10,20,.72);backdrop-filter:blur(18px)}
+body.v022-world-active .welcome{display:none}
+@keyframes v22Cloud{to{transform:translateX(22%)}}
+@keyframes v22Pulse{50%{opacity:.35;transform:scale(.7)}}
+@media(max-width:720px){.v022-world{min-height:720px;margin-left:-10px;margin-right:-10px;border-radius:0}.v022-hud{min-height:720px;padding:18px 12px 22px}.v022-brand h1{font-size:3rem;letter-spacing:.11em}.v022-now{grid-template-columns:1fr;text-align:center;gap:8px}.v022-temp{font-size:6rem}.v022-metrics{grid-template-columns:1fr 1fr}.v022-tabs{grid-template-columns:repeat(3,1fr)}.v022-live-card{border-radius:23px}}
+@media(prefers-reduced-motion:reduce){.v022-cloud-layer,.v022-pulse{animation:none}.v022-scene{transition:none}}
