@@ -1,0 +1,31 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#06111b"><meta name="color-scheme" content="dark">
+<title>SKYGATES V028 · Photoreal Live World Preview</title>
+<link rel="manifest" href="./manifest.webmanifest"><link rel="stylesheet" href="./styles.css?v=028-1">
+</head><body>
+<div id="boot"><span class="ring"></span><b>SKYGATES</b><small>Opening the live world…</small></div>
+<div id="scene" aria-label="Photoreal live Skygates weather scene">
+  <div class="layer sky"></div><div class="layer temple"></div><div class="layer foreground"></div>
+  <canvas id="weatherCanvas"></canvas><canvas id="threeCanvas"></canvas><div id="flash"></div><div id="vignette"></div>
+</div>
+<header><button id="menu" class="circle">☰</button><div class="brand"><b>SKYGATES</b><small>PHOTOREAL LIVE WEATHER</small></div><button id="refresh" class="circle">↻</button></header>
+<section class="place"><button id="locate">📍 <span id="placeName">Locating…</span></button><span id="clock">Local time —</span></section>
+<main>
+<section class="hud glass">
+ <div class="temperature" id="temperature">—°</div>
+ <div class="summary"><b id="condition">Loading live conditions…</b><span id="feels">Feels like —</span><span id="highLow">↑ — &nbsp; ↓ —</span></div>
+ <div id="conditionGlyph" class="glyph">◌</div>
+ <div class="metrics"><div><small>Rain</small><b id="rain">—</b></div><div><small>Wind</small><b id="wind">—</b></div><div><small>Humidity</small><b id="humidity">—</b></div></div>
+</section>
+<nav class="tabs glass"><button class="active" data-page="today">Today</button><button data-page="hourly">Hourly</button><button data-page="week">Week</button><button data-page="sky">Moon & Stars</button><button data-page="more">More</button></nav>
+<section class="sheet glass">
+ <div class="page active" id="today"><h2>Live sky status</h2><p id="skyStatus">Waiting for current conditions.</p><div class="strip" id="hourStrip"></div></div>
+ <div class="page" id="hourly"><h2>Next 24 hours</h2><div class="grid" id="hourGrid"></div></div>
+ <div class="page" id="week"><h2>7-day outlook</h2><div class="week" id="weekGrid"></div></div>
+ <div class="page" id="sky"><h2>Moon & stars</h2><div class="skyfacts"><div><small>Moon phase</small><b id="moonPhase">—</b></div><div><small>Illumination</small><b id="moonLight">—</b></div><div><small>Stargazing</small><b id="stargazing">—</b></div></div></div>
+ <div class="page" id="more"><h2>Live scene controls</h2><label><input id="motion" type="checkbox" checked> Depth and camera motion</label><label><input id="effects" type="checkbox" checked> Live weather effects</label><button id="quality">Quality: Automatic</button><p>All dates, weather values and sky states are rendered live. The scenery contains no forecast text or fixed weather data.</p></div>
+</section>
+</main>
+<footer class="status glass"><span class="dot">●</span><b id="dataState">CONNECTING</b><span id="updated">Not updated</span><span>V028 PHOTOREAL PREVIEW</span></footer>
+<script type="module" src="./app.js?v=028-1"></script></body></html>
