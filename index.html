@@ -1,14 +1,14 @@
 <!doctype html><html lang="en"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07111f"><meta name="color-scheme" content="dark"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Skygates"><meta name="description" content="SKYGATES WEATHER & ASTRONOMY — a personalised digital weather and astronomy universe with name setup, birth Moon, custom guidance and optional symbolic number play."><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./oracle-icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png"><title>SKYGATES · My Personalised Universe</title><link rel="stylesheet" href="./app.css?v=025-phone-1"></head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07111f"><meta name="color-scheme" content="dark"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Skygates"><meta name="description" content="SKYGATES WEATHER & ASTRONOMY — a personalised digital weather and astronomy universe with name setup, birth Moon, custom guidance and optional symbolic number play."><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./oracle-icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png"><title>SKYGATES · My Personalised Universe</title><link rel="stylesheet" href="./app.css?v=026-live3d-1"></head>
 <body><canvas id="digitalWorld" aria-hidden="true"></canvas><canvas id="cosmosCanvas" aria-hidden="true"></canvas><div class="scene"></div><div class="atmosphere" aria-hidden="true"><div class="cloud cloud-a"></div><div class="cloud cloud-b"></div><div class="mist"></div><div class="rain-field"></div><div class="aurora"></div></div><div class="veil"></div><div class="portal-ring" aria-hidden="true"><span></span><span></span><span></span></div><main id="app"></main><div id="modalRoot"></div><footer>Weather data: Open-Meteo · Moon cycle calculated locally · Astrology is reflective guidance.</footer><script>
 (function(){
- const K='skygates-v025-cache-reset';
+ const K='skygates-v026-cache-reset';
  if(!sessionStorage.getItem(K)){
    sessionStorage.setItem(K,'1');
    Promise.all([
      'serviceWorker' in navigator?navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))):Promise.resolve(),
      'caches' in window?caches.keys().then(ks=>Promise.all(ks.map(k=>caches.delete(k)))):Promise.resolve()
-   ]).then(()=>{if(!location.search.includes('v=025'))location.replace(location.pathname+'?v=025-beach');});
+   ]).then(()=>{if(!location.search.includes('v=026'))location.replace(location.pathname+'?v=026-beach');});
  }
 })();
-</script><script src="./app.js?v=025-phone-1" defer></script></body></html>
+</script><script src="./app.js?v=026-live3d-1" defer></script><script type="module" src="./sky3d.js?v=026-live3d-1"></script></body></html>
