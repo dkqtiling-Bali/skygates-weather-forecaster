@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050b14"><meta name="color-scheme" content="dark">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
+<title>SKYGATES V027 · Live 3D World Preview</title>
+<link rel="manifest" href="./manifest.webmanifest"><link rel="stylesheet" href="./styles.css?v=027-1">
+</head><body>
+<div id="boot" class="boot"><div class="sigil">◈</div><strong>SKYGATES</strong><span>Building the live 3D sky…</span></div>
+<canvas id="world" aria-label="Live three dimensional Skygates weather world"></canvas>
+<div id="lightning" aria-hidden="true"></div>
+<header class="topbar">
+  <button id="menuBtn" class="round" aria-label="Open menu">☰</button>
+  <div class="brand"><div>SKYGATES</div><small>LIVE 3D WEATHER WORLD</small></div>
+  <button id="refreshBtn" class="round" aria-label="Refresh live weather">↻</button>
+</header>
+<section class="location"><button id="locationBtn">📍 <span id="place">Locating…</span></button><div id="localTime">Local time —</div></section>
+<main>
+<section class="hero-card glass" aria-live="polite">
+  <div class="temp" id="temperature">—°</div>
+  <div class="condition"><strong id="condition">Loading live weather…</strong><span id="feels">Feels like —</span><span id="highLow">↑ — &nbsp; ↓ —</span></div>
+  <div class="weather-icon" id="weatherIcon">◌</div>
+  <div class="metrics">
+    <div><span>Rain</span><b id="rain">—</b></div><div><span>Wind</span><b id="wind">—</b></div><div><span>Humidity</span><b id="humidity">—</b></div>
+  </div>
+</section>
+<nav class="section-tabs glass" aria-label="Sections">
+  <button class="active" data-page="today">Today</button><button data-page="hourly">Hourly</button><button data-page="week">Week</button><button data-page="sky">Moon & Stars</button><button data-page="more">More</button>
+</nav>
+<section id="panel" class="panel glass">
+  <div id="today" class="page active"><h2>Live sky status</h2><p id="skyStatus">Waiting for current conditions.</p><div id="hourStrip" class="hour-strip"></div></div>
+  <div id="hourly" class="page"><h2>Next 24 hours</h2><div id="hourGrid" class="hour-grid"></div></div>
+  <div id="week" class="page"><h2>7-day outlook</h2><div id="weekGrid" class="week-grid"></div></div>
+  <div id="sky" class="page"><h2>Moon & stars</h2><div class="sky-grid"><div><span>Moon phase</span><b id="moonPhase">—</b></div><div><span>Illumination</span><b id="moonLight">—</b></div><div><span>Stargazing</span><b id="stargazing">—</b></div></div></div>
+  <div id="more" class="page"><h2>Scene controls</h2><label><input id="motionToggle" type="checkbox" checked> Live motion</label><label><input id="effectsToggle" type="checkbox" checked> Weather effects</label><button id="qualityBtn" class="setting">Quality: Automatic</button><p class="fine">All weather values come from Open-Meteo. The 3D world contains no fixed dates, temperatures or weather claims.</p></div>
+</section>
+</main>
+<footer class="status glass"><span id="liveDot">●</span><b id="dataState">CONNECTING</b><span id="updated">Not updated</span><span>V027 PREVIEW</span></footer>
+<script type="module" src="./app.js?v=027-1"></script>
+</body></html>
