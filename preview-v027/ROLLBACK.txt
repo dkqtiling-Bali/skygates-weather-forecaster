@@ -1,0 +1,1 @@
+Production root is not changed by V027. Rollback is simply to use the existing root app and ignore /preview-v027/. No files are deleted.
